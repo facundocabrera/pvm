@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # ======================================================================
 # Function: confirm
 # Asks the user to confirm an action, If the user does not answer yes,

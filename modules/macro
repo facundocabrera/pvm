@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+macro()
+{
+# multiple replacements at once
+# sed -e 's/a/A/' -e 's/b/B/' <old >new 
+  echo ${1/"$2"/"$3"}
+}
+
+#
+# test cases
+#
+#test() 
+#{
+#  PHP_MUSEUM="http://museum.php.net/php%%PHP_MAYOR%%/"
+#  PHP_GET="http://www.php.net/get/php-%%PHP_VERSION%%.tar.bz2/from/this/mirror"
+#
+#  r=$(macro $PHP_MUSEUM '%%PHP_MAYOR%%' '5')
+#  echo $r
+#
+#  r=$(macro $PHP_GET '%%PHP_VERSION%%' '5.3.6')
+#  echo $r
+#}
+#
+#test

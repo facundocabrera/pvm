@@ -27,7 +27,7 @@
 # >  confirm Do you want to run the rest of the script?
 # >  echo Here is the rest of the script
 # ======================================================================
-function confirm()
+confirm()
 {
     echo -n "$@ "
     read -e answer

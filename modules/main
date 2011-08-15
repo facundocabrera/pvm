@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+#
+# @module handle parameters parsing & usage message
+#
+
+usage() 
+{
+  local version='5.3.6   ' # white spaces appended only for visual purpose
+
+cat <<EOM
+PVM - PHP Version Manager
+=========================
+
+USAGE:
+~$ pvm -s $version # set current shell to use a specific php version
+~$ pvm -r          # restore system defaults
+~$ pvm -c          # show current settings
+~$ pvm -i $version # install a new version of PHP
+~$ pvm -u $version # remove an existent version of PHP
+~$ pvm -l          # show currently installed versions
+~$ pvm -k          # download a list of all the PHP available versions and show them to the user
+EOM
+}
+
+if [ $# -eq 0 ] # script invoked with no command-line args?
+then
+  usage
+  exit 0
+fi
+
+#
+# main
+#
+while getopts ":crlks:i:u:" opt
+do
+  case $opt in
+    c ) show_current_settings ;;
+    r ) restore_default_settings ;;
+    s ) set_current_php $OPTARG ;;
+    i ) install_php $OPTARG ;;
+    u ) uninstall_php $OPTARG ;;
+    l ) list_installed_php ;;
+    k ) list_available_php ;;
+    * ) usage ;;
+  esac
+done
+

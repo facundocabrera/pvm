@@ -223,11 +223,7 @@ restore_default_settings()
 #
 list_available_php()
 {
-  if [ -f "$CORE_DIR/$PHP_VERSIONS_FILE" ]; then
-    cat "$CORE_DIR/$PHP_VERSIONS_FILE"
-  else
-    curl -f -L $PHP_VERSIONS
-  fi
+  curl -f -L $PHP_VERSIONS
 }
 
 #

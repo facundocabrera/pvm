@@ -221,7 +221,8 @@ list_available_php()
 #
 list_installed_php()
 {
-  echo "list installed php versions"
+  echo -e "\033[1mInstalled PHP versions:\033[0m"
+  ls $INSTALL_DIR | tr "\t" "\n"
 }
 
 ## test

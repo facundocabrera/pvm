@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# pvm initialization code
+
+## create usefull directories
+
+[ ! -d $BIN_DIR ] && mkdir $BIN_DIR
+
+[ ! -d $INSTALL_DIR ] && mkdir $INSTALL_DIR
+
+[ ! -d $CACHE_DIR ] && mkdir $CACHE_DIR
+
+[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+

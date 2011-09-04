@@ -4,7 +4,7 @@
 . core/config
 
 ## INCLUDES
-scripts=( confirm macro php main )
+scripts=( init confirm macro php main )
 for module in "${scripts[@]}"
 do
   . "$MODULES_DIR/$module"

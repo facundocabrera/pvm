@@ -9,12 +9,11 @@
 # Don't touch this file here - it would prevent you to just "svn up"
 # your phpfarm source code.
 
-version=$1
-vmajor=$2
-vminor=$3
-vpatch=$4
+#version=$1
+#vmajor=$2
+#vminor=$3
+#vpatch=$4
 
-#gcov='--enable-gcov'
 configoptions="\
 --enable-bcmath \
 --enable-calendar \
@@ -28,16 +27,13 @@ configoptions="\
 --enable-wddx \
 --enable-zip \
 --with-zlib \
---with-gettext=$(brew --prefix gettext) \
-$gcov"
+--with-gettext=$(brew --prefix gettext)"
 
-echo $version $vmajor $vminor $vpatch
-
-custom="custom-options.sh"
-[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
-custom="custom-options-$vmajor.sh"
-[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
-custom="custom-options-$vmajor.$vminor.sh"
-[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
-custom="custom-options-$vmajor.$vminor.$vpatch.sh"
-[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
+#custom="custom-options.sh"
+#[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
+#custom="custom-options-$vmajor.sh"
+#[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
+#custom="custom-options-$vmajor.$vminor.sh"
+#[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch
+#custom="custom-options-$vmajor.$vminor.$vpatch.sh"
+#[ -f $custom ] && source "$custom" $version $vmajor $vminor $vpatch

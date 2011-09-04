@@ -4,20 +4,20 @@
 # @module php functions
 #
 
-# TODO make it work!
-# 
-# Parse php version and export variables.
+#
+# Parse php version and export variables to the global scope.
 # 
 # string $1 php version.
 #
+# USAGE
+# php_parse_version_from_string '5.3.6'
 php_parse_version_from_string()
 {
-  let version=$1
-  let vmajor=`echo ${version%%.*}`
-  let vminor=`echo ${version%.*}`
-  let vminor=`echo ${vminor#*.}`
-  let vpatch=`echo ${version##*.}`
-  let vcomp=`printf "%02d%02d%02d\n" $vmajor $vminor $vpatch`
+  PHP_VERSION=$1
+  PHP_VMAJOR=`echo ${PHP_VERSION%%.*}`
+  PHP_VMINOR=`echo ${PHP_VERSION%.*}`
+  PHP_VMINOR=`echo ${PHP_VMINOR#*.}`
+  PHP_VPATCH=`echo ${PHP_VERSION##*.}`
 }
 
 #
@@ -25,6 +25,9 @@ php_parse_version_from_string()
 # 
 # string $1 server url with the anchors to the php source files.
 #
+# USAGE
+# php_parse_versions_from_url 'http://museum.php.net/php4/'
+# php_parse_versions_from_url 'http://museum.php.net/php5/'
 php_parse_versions_from_url()
 {
   curl -f -s -L $1 | sed -nE 's|^.*href="(php-[^"]+)".*$|\1| p'  
@@ -37,24 +40,26 @@ php_parse_versions_from_url()
 #
 install_php()
 {
-  local version=$1
-
   # php source directory
-  srcdir="$TMP_DIR/php-$version"
+  srcdir="$TMP_DIR/php-$PHP_VERSION"
 
   # php install directory
-  instdir="$INSTALL_DIR/php-$version"
+  instdir="$INSTALL_DIR/php-$PHP_VERSION"
 
+  ### download php source
   if [ ! -d "$srcdir" ]; then
-      srcfile="$CACHE_DIR/php-$version.tar.bz2"
+
+      echo -e "\033[1mDownloading $PHP_VERSION source code\033[0m"
+
+      srcfile="$CACHE_DIR/php-$PHP_VERSION.tar.bz2"
       
       if [ ! -f "$srcfile" ]; then
-          url=$(macro $PHP_MUSEUM '%%PHP_MAYOR%%' $vmajor)
-          url=$(macro $url '%%PHP_VERSION%%' $version)
+          url=$(macro $PHP_MUSEUM '%%PHP_MAYOR%%' $PHP_VMAJOR)
+          url=$(macro $url '%%PHP_VERSION%%' $PHP_VERSION)
           wget -P "$CACHE_DIR" "$url"
           
           if [ ! -f "$srcfile" ]; then
-              url=$(macro $PHP_GET '%%PHP_VERSION%%' $version)
+              url=$(macro $PHP_GET '%%PHP_VERSION%%' $PHP_VERSION)
               wget -P "$CACHE_DIR" -O "$srcfile" "$url"
           fi
 
@@ -66,14 +71,18 @@ install_php()
       fi
    
       cd $TMP_DIR
-      tar xjvf "$srcfile"
+      echo -e "\033[1mUncompressing source code\033[0m"
+      tar xjf "$srcfile"
       cd $BASE_DIR
   fi
 
-  source 'options.sh' "$version" "$vmajor" "$vminor" "$vpatch"
+  ### load ./configure parameters
+  source 'options.sh' "$PHP_VERSION" "$PHP_VMAJOR" "$PHP_VMINOR" "$PHP_VPATCH"
   cd "$srcdir"
-  #configuring
-  #TODO: do not configure when config.nice exists
+ 
+  echo -e "\033[1m./configure\033[0m"
+
+  ### run ./configure
   ./configure \
    --prefix="$instdir" \
    --exec-prefix="$instdir" \
@@ -87,8 +96,8 @@ install_php()
       exit 3
   fi
 
-  #compile sources
-  #make clean
+  echo -e "\033[1mmake\033[0m"
+  ### run make
   make
   if [ "$?" -gt 0 ]; then
       echo make failed.
@@ -97,92 +106,86 @@ install_php()
 
   confirm "Are you sure you want to install here: $instdir?"
   if [ $? -eq 1 ]; then
-    exit
+    exit 0
   fi
 
+  echo -e "\033[1mmake install\033[0m"
+  ### run make install
   make install
   if [ "$?" -gt 0 ]; then
       echo make install failed.
       exit 5
   fi
 
-  #copy php.ini
-  initarget="$instdir/lib/php.ini"
-  if [ -f "php.ini-development" ]; then
+  # copy php.ini
+  # initarget="$instdir/lib/php.ini"
+  # if [ -f "php.ini-development" ]; then
       #php 5.3
-      cp "php.ini-development" "$initarget"
-  elif [ -f "php.ini-recommended" ]; then
+  #    cp "php.ini-development" "$initarget"
+  #elif [ -f "php.ini-recommended" ]; then
       #php 5.1, 5.2
-      cp "php.ini-recommended" "$initarget"
-  else
-      echo "No php.ini file found."
-      echo "Please copy it manually to $instdir/lib/php.ini"
-  fi
+  #    cp "php.ini-recommended" "$initarget"
+  #else
+  #    echo "No php.ini file found."
+  #    echo "Please copy it manually to $instdir/lib/php.ini"
+  #fi
   #set default ini values
-  cd "$basedir"
-  if [ -f "$initarget" ]; then
-      #fixme: make the options unique or so
-      custom="custom-php.ini"
-      [ ! -f $custom ] && cp "default-custom-php.ini" "$custom"
-      [ -f $custom ] && cat "$custom" >> "$initarget"
-      custom="custom-php-$vmajor.ini"
-      [ -f $custom ] && cat "$custom" >> "$initarget"
-      custom="custom-php-$vmajor.$vminor.ini"
-      [ -f $custom ] && cat "$custom" >> "$initarget"
-      custom="custom-php-$vmajor.$vminor.$vpatch.ini"
-      [ -f $custom ] && cat "$custom" >> "$initarget"
-  fi
+#  cd "$basedir"
+#  if [ -f "$initarget" ]; then
+#      #fixme: make the options unique or so
+#      custom="custom-php.ini"
+#      [ ! -f $custom ] && cp "default-custom-php.ini" "$custom"
+#      [ -f $custom ] && cat "$custom" >> "$initarget"
+#      custom="custom-php-$vmajor.ini"
+#      [ -f $custom ] && cat "$custom" >> "$initarget"
+#      custom="custom-php-$vmajor.$vminor.ini"
+#      [ -f $custom ] && cat "$custom" >> "$initarget"
+#      custom="custom-php-$vmajor.$vminor.$vpatch.ini"
+#      [ -f $custom ] && cat "$custom" >> "$initarget"
+#  fi
 
   #create bin
-  [ ! -d "$BIN_DIR" ] && mkdir "$BIN_DIR"
-  if [ ! -d "$BIN_DIR" ]; then
-      echo "Cannot create shared bin dir"
-      exit 6
-  fi
+#  [ ! -d "$BIN_DIR" ] && mkdir "$BIN_DIR"
+#  if [ ! -d "$BIN_DIR" ]; then
+#      echo "Cannot create shared bin dir"
+#      exit 6
+#  fi
   #symlink all files
 
   #php may be called php.gcno
-  bphp="$instdir/bin/php"
-  bphpgcno="$instdir/bin/php.gcno"
-  if [ -f "$bphp" ]; then 
-      ln -fs "$bphp" "$BIN_DIR/php-$version"
-  elif [ -f "$bphpgcno" ]; then
-      ln -fs "$bphpgcno" "$BIN_DIR/php-$version"
-  else
-      echo "no php binary found"
-      exit 7    
-  fi
+#  bphp="$instdir/bin/php"
+#  bphpgcno="$instdir/bin/php.gcno"
+#  if [ -f "$bphp" ]; then 
+#      ln -fs "$bphp" "$BIN_DIR/php-$PHP_VERSION"
+#  elif [ -f "$bphpgcno" ]; then
+#      ln -fs "$bphpgcno" "$BIN_DIR/php-$PHP_VERSION"
+#  else
+#      echo "no php binary found"
+#      exit 7    
+#  fi
 
   #php-cgi may be called php.gcno
-  bphpcgi="$instdir/bin/php-cgi"
-  bphpcgigcno="$instdir/bin/php-cgi.gcno"
-  if [ -f "$bphpcgi" ]; then 
-      ln -fs "$bphpcgi" "$BIN_DIR/php-cgi-$version"
-  elif [ -f "$bphpcgigcno" ]; then
-      ln -fs "$bphpcgigcno" "$BIN_DIR/php-cgi-$version"
-  else
-      echo "no php-cgi binary found"
-      exit 8
-  fi
-
-  ln -fs "$instdir/bin/php-config" "$BIN_DIR/php-config-$version"
-  ln -fs "$instdir/bin/phpize" "$BIN_DIR/phpize-$version"
-
-  # TODO re-enable pyrus installer
-  #
-  # cd "$basedir"
-  # ./pyrus.sh "$version" "$instdir"
+#  bphpcgi="$instdir/bin/php-cgi"
+#  bphpcgigcno="$instdir/bin/php-cgi.gcno"
+#  if [ -f "$bphpcgi" ]; then 
+#      ln -fs "$bphpcgi" "$BIN_DIR/php-cgi-$PHP_VERSION"
+#  elif [ -f "$bphpcgigcno" ]; then
+#      ln -fs "$bphpcgigcno" "$BIN_DIR/php-cgi-$PHP_VERSION"
+#  else
+#      echo "no php-cgi binary found"
+#      exit 8
+#  fi
+#
+#  ln -fs "$instdir/bin/php-config" "$BIN_DIR/php-config-$PHP_VERSION"
+#  ln -fs "$instdir/bin/phpize" "$BIN_DIR/phpize-$PHP_VERSION"
 }
 
 # 
 # Remove an existent php version from the system.
 # 
-# string $1 PHP version should be uninstalled
-#
 uninstall_php()
 {
-  local version=$1
-  local dst="$INSTALL_DIR/php-$version"
+  local dst="$INSTALL_DIR/php-$PHP_VERSION"
 
   if [ -d "$dst" ]; then
     confirm "Are you sure you want to delete $dst?"
@@ -199,7 +202,11 @@ uninstall_php()
 #
 set_current_php()
 {
-  echo "set current settings - $1"
+  echo $PHP_VERSION
+
+  echo $PHP_VMAJOR
+  echo $PHP_VMINOR
+  echo $PHP_VPATCH
 }
 
 #
@@ -238,6 +245,4 @@ list_installed_php()
 #
 # List of available versions
 # 
-# php_parse_versions_from_url 'http://museum.php.net/php4/'
-# php_parse_versions_from_url 'http://museum.php.net/php5/'
 #

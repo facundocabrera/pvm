@@ -37,9 +37,18 @@ do
   case $opt in
     c ) show_current_settings ;;
     r ) restore_default_settings ;;
-    s ) set_current_php $OPTARG ;;
-    i ) install_php $OPTARG ;;
-    u ) uninstall_php $OPTARG ;;
+    s )
+      php_parse_version_from_string $OPTARG
+      set_current_php
+      ;;
+    i )
+      php_parse_version_from_string $OPTARG
+      install_php
+      ;;
+    u )
+      php_parse_version_from_string $OPTARG
+      uninstall_php
+      ;;
     l ) list_installed_php ;;
     k ) list_available_php ;;
     * ) usage ;;

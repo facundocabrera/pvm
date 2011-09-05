@@ -117,50 +117,13 @@ install_php()
       exit 5
   fi
 
-  echo -e "\033[1mCopy php.ini to config directory\033[0m"
+  echo -e "\033[1mCopy php.ini to lib directory\033[0m"
   ### copy default php.ini to config directory 
   
-  [ ! -d "$instdir/config" ] && mkdir "$instdir/config"
-  
-  for file in $(ls "$srcdir"/php.ini*)
+  for file in "$srcdir/php.ini*"
   do
-    cp $file "$instdir/config/$cfg"
+    cp $file "$instdir/lib/"
   done
-
-  #create bin
-#  [ ! -d "$BIN_DIR" ] && mkdir "$BIN_DIR"
-#  if [ ! -d "$BIN_DIR" ]; then
-#      echo "Cannot create shared bin dir"
-#      exit 6
-#  fi
-  #symlink all files
-
-  #php may be called php.gcno
-#  bphp="$instdir/bin/php"
-#  bphpgcno="$instdir/bin/php.gcno"
-#  if [ -f "$bphp" ]; then 
-#      ln -fs "$bphp" "$BIN_DIR/php-$PHP_VERSION"
-#  elif [ -f "$bphpgcno" ]; then
-#      ln -fs "$bphpgcno" "$BIN_DIR/php-$PHP_VERSION"
-#  else
-#      echo "no php binary found"
-#      exit 7    
-#  fi
-
-  #php-cgi may be called php.gcno
-#  bphpcgi="$instdir/bin/php-cgi"
-#  bphpcgigcno="$instdir/bin/php-cgi.gcno"
-#  if [ -f "$bphpcgi" ]; then 
-#      ln -fs "$bphpcgi" "$BIN_DIR/php-cgi-$PHP_VERSION"
-#  elif [ -f "$bphpcgigcno" ]; then
-#      ln -fs "$bphpcgigcno" "$BIN_DIR/php-cgi-$PHP_VERSION"
-#  else
-#      echo "no php-cgi binary found"
-#      exit 8
-#  fi
-#
-#  ln -fs "$instdir/bin/php-config" "$BIN_DIR/php-config-$PHP_VERSION"
-#  ln -fs "$instdir/bin/phpize" "$BIN_DIR/phpize-$PHP_VERSION"
 }
 
 # 
@@ -181,31 +144,38 @@ uninstall_php()
 #
 # Set the current environment using the given version.
 #
-# string $1 php version should be use as current environment.
-#
 set_current_php()
 {
-  echo $PHP_VERSION
+  local root="$INSTALL_DIR/php-$PHP_VERSION"
 
-  echo $PHP_VMAJOR
-  echo $PHP_VMINOR
-  echo $PHP_VPATCH
+  # clean bin directory
+  rm $BIN_DIR/*
+
+  # create the symlinks
+  for file in "$root/bin/*"
+  do
+    ln -s $file $BIN_DIR
+  done
 }
 
 #
-#
+# Show the system php default version
 #
 show_current_settings()
 {
-  echo "show current settings"
+  php -v
 }
 
 #
-#
+# Show restore instructions.
 #
 restore_default_settings()
 {
-  echo "restore default settings"
+cat <<EOM
+In order to restore your default configuration:
+  1 - Update your .bashrc and remove the line which define '$BIN_DIR'.
+  2 - Optional you can just remove the pvm folder.
+EOM
 }
 
 #
@@ -224,9 +194,3 @@ list_installed_php()
   echo -e "\033[1mInstalled PHP versions:\033[0m"
   ls $INSTALL_DIR | tr "\t" "\n"
 }
-
-## test
-#
-# List of available versions
-# 
-#

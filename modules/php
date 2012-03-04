@@ -61,6 +61,11 @@ install_php()
           if [ ! -f "$srcfile" ]; then
               url=$(macro $PHP_GET '%%PHP_VERSION%%' $PHP_VERSION)
               wget -P "$CACHE_DIR" -O "$srcfile" "$url"
+              rval=$?
+
+              if [ "$rval" -eq 4 ] || [ "$rval" -eq 8 ]; then
+                rm $srcfile
+              fi
           fi
 
           if [ ! -f "$srcfile" ]; then

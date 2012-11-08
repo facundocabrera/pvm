@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
+## Resolve symlinks paths
+FNAME=$(dirname $0)
+BASE_DIR=$(dirname $(readlink $0))
+
+if [[ -z "${BASE_DIR}" ]] ; then
+  BASE_DIR="$FNAME"
+else
+  BASE_DIR="$FNAME/$BASE_DIR"
+fi
+
+## From now everything is relative to the root of the project
+cd "$BASE_DIR"
+
 ## GLOBAL CONFIG
 . core/config
 
 ## INCLUDES
 scripts=( init confirm macro php main )
+
 for module in "${scripts[@]}"
 do
   . "$MODULES_DIR/$module"
 done
-

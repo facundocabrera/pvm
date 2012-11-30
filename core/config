@@ -2,26 +2,23 @@
 
 ### PVM global paths
 
-# Base directory
-# BASE_DIR="$( cd "$( dirname "$0" )" && pwd )"
-
 # Core directory
-CORE_DIR="core"
+CORE_DIR="$PWD/core"
 
 # Modules directory
-MODULES_DIR="modules"
+MODULES_DIR="$PWD/modules"
 
 # Binary directory
-BIN_DIR="bin"
+BIN_DIR="$PWD/bin"
 
 # Instalation directory
-INSTALL_DIR="install"
+INSTALL_DIR="$PWD/install"
 
 # Cache directory
-CACHE_DIR="cache"
+CACHE_DIR="$PWD/cache"
 
 # Temporal directory
-TMP_DIR="tmp"
+TMP_DIR="$PWD/tmp"
 
 ### PHP download mirrors
 
